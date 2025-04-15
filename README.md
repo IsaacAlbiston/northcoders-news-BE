@@ -1,3 +1,5 @@
 # NC News Seeding
 
-- Instructions for this sprint can be found at https://l2c.northcoders.com/courses/be/seeding-nc-news
+To seed the databases in this project you must first set-up two .env files in the main repo folder:
+.env.development    which contains PGDATABASE = nc_news
+.env.test           which contains PGDATABASE = nc_news_test
