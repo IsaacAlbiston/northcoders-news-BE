@@ -543,9 +543,9 @@ describe('seed', () => {
   });
 });
 
-xdescribe('data insertion', () => {
+describe('data insertion', () => {
 
-  test('topics data has been inserted correctly', () => {
+  test.only('topics data has been inserted correctly', () => {
     return db.query(`SELECT * FROM topics;`).then(({ rows: topics }) => {
       expect(topics).toHaveLength(3);
       topics.forEach((topic) => {
@@ -556,7 +556,7 @@ xdescribe('data insertion', () => {
     });
   });
 
-  test('users data has been inserted correctly', () => {
+  test.only('users data has been inserted correctly', () => {
     return db.query(`SELECT * FROM users;`).then(({ rows: users }) => {
       expect(users).toHaveLength(4);
       users.forEach((user) => {
@@ -567,7 +567,7 @@ xdescribe('data insertion', () => {
     });
   });
   
-  test('articles data has been inserted correctly', () => {
+  test.only('articles data has been inserted correctly', () => {
     return db.query(`SELECT * FROM articles;`).then(({ rows: articles }) => {
       expect(articles).toHaveLength(13);
       articles.forEach((article) => {
@@ -583,7 +583,7 @@ xdescribe('data insertion', () => {
     });
   });
   
-  test('comments data has been inserted correctly', () => {
+  test.only('comments data has been inserted correctly', () => {
     return db.query(`SELECT * FROM comments;`).then(({ rows: comments }) => {
       expect(comments).toHaveLength(18);
       comments.forEach((comment) => {

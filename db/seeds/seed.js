@@ -1,4 +1,6 @@
 const db = require("../connection")
+const format = require("pg-format")
+const {formatInsertQuery} = require("./utils")
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db.query("DROP TABLE IF EXISTS comments;")
@@ -54,6 +56,47 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );`
     )
+  })
+  .then(()=>{
+    const topicsColumns = ['slug', 'description', 'img_url']
+    const formattedTopics = formatInsertQuery(topicData, topicsColumns)
+    const topicInsertQuery = format(
+      `INSERT INTO topics (slug, description, img_url)
+      VALUES %L`,
+      formattedTopics
+    )
+    return db.query(topicInsertQuery)
+  })
+  .then(()=>{
+    const userColumns = ['username', 'name', 'avatar_url']
+    const formattedUsers = formatInsertQuery(userData, userColumns)
+    const userInsertQuery = format(
+      `INSERT INTO users (username, name, avatar_url)
+      VALUES %L`,
+      formattedUsers
+    )
+    return db.query(userInsertQuery)
+  })
+  .then(()=>{
+    const articleColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes', 'article_img_url'];
+    const formattedArticles = formatInsertQuery(articleData, articleColumns)
+    const articleInsertQuery = format(
+      `INSERT INTO articles (title, topic, author, body, 
+      created_at, votes, article_img_url)
+      VALUES %L`,
+      formattedArticles
+    )
+    return db.query(articleInsertQuery)
+  })
+  .then(()=>{
+    const commentColumns = ['article_id', 'body', 'votes', 'author', 'created_at']
+    const formattedComments = formatInsertQuery(commentData, commentColumns)
+    const commentInsertQuery = format(
+      `INSERT INTO comments (article_id, body, votes, author, created_at)
+      VALUES %L`,
+      formattedComments
+    )
+    return db.query(commentInsertQuery)
   })
 };
 module.exports = seed;
