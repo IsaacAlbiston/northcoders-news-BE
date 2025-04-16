@@ -1,6 +1,6 @@
 const db = require("../connection")
 const format = require("pg-format")
-const {formatInsertQuery} = require("./utils")
+const {formatInsertQuery, createArticleRefObj} = require("./utils")
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db.query("DROP TABLE IF EXISTS comments;")
@@ -83,20 +83,30 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     const articleInsertQuery = format(
       `INSERT INTO articles (title, topic, author, body, 
       created_at, votes, article_img_url)
-      VALUES %L`,
+      VALUES %L RETURNING *`,
       formattedArticles
     )
     return db.query(articleInsertQuery)
   })
-  .then(()=>{
+  .then((result)=>{
+    articleRefObj = createArticleRefObj(result.rows)
     const commentColumns = ['article_id', 'body', 'votes', 'author', 'created_at']
-    const formattedComments = formatInsertQuery(commentData, commentColumns)
+    const updatedCommentData = []
+    commentData.forEach((comment)=>{
+      newComment = {...comment}
+      newComment.article_id = articleRefObj[comment.article_title]
+      updatedCommentData.push(newComment)
+    })
+    const formattedComments = formatInsertQuery(updatedCommentData, commentColumns)
     const commentInsertQuery = format(
       `INSERT INTO comments (article_id, body, votes, author, created_at)
       VALUES %L`,
       formattedComments
     )
     return db.query(commentInsertQuery)
+  })
+  .then(()=>{
+    console.log("tables seeded")
   })
 };
 module.exports = seed;
