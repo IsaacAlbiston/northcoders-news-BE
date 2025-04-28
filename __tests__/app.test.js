@@ -68,6 +68,20 @@ describe("GET /api/articles/:article_id", ()=>{
       })
     })
   })
-  test.todo("400: Responds with Bad Request when given article_id is not a number")
-  test.todo("404: Responds with Not Found when given article_id is out of range")
+  test("404: Responds with Not Found when given article_id is out of range", ()=>{
+    return request(app)
+    .get("/api/articles/10000")
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Index Not Found")
+    })
+  })
+  test("400: Responds with Bad Request when given article_id is not a number", ()=>{
+    return request(app)
+    .get("/api/articles/notValidId")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
 })
