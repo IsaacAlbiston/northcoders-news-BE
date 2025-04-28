@@ -4,6 +4,7 @@ const request = require("supertest")
 const app = require("../app")
 const data = require("../db/data/test-data")
 const seed = require("../db/seeds/seed")
+const jestSorted = require("jest-sorted")
 /* Set up your test imports here */
 
 beforeEach(()=> seed(data))
@@ -73,7 +74,7 @@ describe("GET /api/articles/:article_id", ()=>{
     .get("/api/articles/10000")
     .expect(404)
     .then(({body:{msg}})=>{
-      expect(msg).toBe("Index Not Found")
+      expect(msg).toBe("Id Not Found")
     })
   })
   test("400: Responds with Bad Request when given article_id is not a number", ()=>{
@@ -82,6 +83,31 @@ describe("GET /api/articles/:article_id", ()=>{
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
+    })
+  })
+})
+
+describe("GET /api/articles", ()=>{
+  test("200: Responds with an array of all articles in descending order of date with no body and a comment_count", ()=>{
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body:{articles}})=>{
+      expect(articles).toHaveLength(13)
+      expect(articles).toBeSortedBy("created_at", { descending: true})
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
     })
   })
 })
