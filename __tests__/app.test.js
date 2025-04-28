@@ -87,6 +87,52 @@ describe("GET /api/articles/:article_id", ()=>{
   })
 })
 
+describe("GET /api/articles/:article_id/comments", ()=>{
+  test("200: Responds with an array of all comments for an article with the specified article_id", ()=>{
+    return request(app)
+    .get("/api/articles/5/comments")
+    .expect(200)
+    .then(({body:{comments}})=>{
+      expect(comments).toHaveLength(2)
+      expect(comments).toBeSortedBy("created_at", { descending: true})
+      comments.forEach(comment=>{
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          body: expect.any(String),
+          comment_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_id: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("404: Responds with Not Found when given article_id is out of range", ()=>{
+    return request(app)
+    .get("/api/articles/10000/comments")
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Id Not Found")
+    })
+  })
+  test("200: Responds with an empty array for an article that has no comments", ()=>{
+    return request(app)
+    .get("/api/articles/2/comments")
+    .expect(200)
+    .then(({body:{comments}})=>{
+      expect(comments).toEqual([])
+    })
+  })
+  test("400: Responds with Bad Request when given article_id is not a number", ()=>{
+    return request(app)
+    .get("/api/articles/notValidId/comments")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+})
+
 describe("GET /api/articles", ()=>{
   test("200: Responds with an array of all articles in descending order of date with no body and a comment_count", ()=>{
     return request(app)
