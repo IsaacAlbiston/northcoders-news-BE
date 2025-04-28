@@ -21,3 +21,31 @@ describe("GET /api", () => {
       });
   });
 });
+
+describe("testing bad endpoint", ()=>{
+  test("404: Responds with Not Found when endpoint is invalid", ()=>{
+    return request(app)
+    .get("/api/invalidEndpoint")
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Endpoint Not Found")
+    })
+  })
+})
+
+describe("GET /api/topics", ()=>{
+  test("200: Responds with an array of all topics, each with a slug and a description", ()=>{
+    return request(app)
+    .get("/api/topics")
+    .expect(200)
+    .then(({body:{topics}})=>{
+      expect(topics).toHaveLength(3)
+      topics.forEach(topic=>{
+        expect(topic).toMatchObject({
+          slug: expect.any(String),
+          description: expect.any(String)
+        })
+      })
+    })
+  })
+})
