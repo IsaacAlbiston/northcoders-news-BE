@@ -4,6 +4,7 @@ const { handleInternalServerErr, handleCustomErr, handleSQLErr } = require("./ap
 const { getTopics } = require("./app/controllers/topics.controller");
 const { getArticleById, getArticles, patchArticle } = require("./app/controllers/articles.controller");
 const { getCommentsByArticleId, postCommentToArticleId, deleteCommentById } = require("./app/controllers/comments.controller");
+const { getUsers } = require("./app/controllers/users.controller");
 
 const app = express()
 
@@ -26,6 +27,8 @@ app.post("/api/articles/:article_id/comments", postCommentToArticleId)
 app.patch("/api/articles/:article_id", patchArticle)
 
 app.delete("/api/comments/:comment_id", deleteCommentById)
+
+app.get("/api/users", getUsers)
 
 app.all('/*splat', (req,res)=>{
     res.status(404).send({msg:"Endpoint Not Found"})
