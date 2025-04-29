@@ -133,7 +133,7 @@ describe("GET /api/articles/:article_id/comments", ()=>{
   })
 })
 
-describe("GET /api/articles", ()=>{
+describe.only("GET /api/articles", ()=>{
   test("200: Responds with an array of all articles in descending order of date with no body and a comment_count", ()=>{
     return request(app)
     .get("/api/articles")
@@ -277,6 +277,66 @@ describe("GET /api/articles", ()=>{
   test("400: Responds with Bad Request when the order query is invalid", ()=>{
     return request(app)
     .get("/api/articles?order=invalid_query")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("200: Responds with an array of all articles for the cats topic in descending order of date when the topic query is mitch", ()=>{
+    return request(app)
+    .get("/api/articles?topic=mitch")
+    .expect(200)
+    .then(({body:{articles}})=>{
+      expect(articles).toHaveLength(12)
+      expect(articles).toBeSortedBy("created_at", { descending: true})
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an array of all articles for the mitch topic in ascending order of votes when the topic query is mitch, the order query is asc and the sort_by query is votes", ()=>{
+    return request(app)
+    .get("/api/articles?topic=mitch&order=asc&sort_by=votes")
+    .expect(200)
+    .then(({body:{articles}})=>{
+      expect(articles).toHaveLength(12)
+      expect(articles).toBeSortedBy("votes", { ascending: true})
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an empty array when the topic query is a topic that has no articles", ()=>{
+    return request(app)
+    .get("/api/articles?topic=paper")
+    .expect(200)
+    .then(({body:{articles}})=>{
+      expect(articles).toEqual([])
+    })
+  })
+  test("400: Responds with Bad Request when the topic query is invalid", ()=>{
+    return request(app)
+    .get("/api/articles?topic=invalid_query")
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
