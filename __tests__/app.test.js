@@ -221,3 +221,70 @@ describe("POST /api/articles/:article_id/comments", ()=>{
     })
   })
 })
+
+describe("PATCH /api/articles/:article_id", ()=>{
+  test("200: Responds with the updated article for the specified article_id", ()=>{
+    return request(app)
+    .patch("/api/articles/1")
+    .send({votes:-10})
+    .expect(200)
+    .then(({body:{article}})=>{
+      expect(article).toMatchObject({
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 90,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+    })
+  })
+  test("400: Responds with Bad Request when passed an object with a votes property that is not a number", ()=>{
+    return request(app)
+    .patch("/api/articles/2")
+    .send({votes:"Not a number"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that is missing required properties", ()=>{
+    return request(app)
+    .patch("/api/articles/2")
+    .send({})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
+    return request(app)
+    .patch("/api/articles/1")
+    .send({votes:10,invalidKey:"error"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("404: Responds with Id Not Found when given article_id is out of range", ()=>{
+    return request(app)
+    .patch("/api/articles/10000")
+    .send({votes:10})
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Id Not Found")
+    })
+  })
+  test("400: Responds with Bad Request when given article_id is not a number", ()=>{
+    return request(app)
+    .patch("/api/articles/notValidId")
+    .send({votes:10})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+})

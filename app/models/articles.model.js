@@ -21,3 +21,13 @@ exports.selectArticles = ()=>{
         return result.rows
     })
 }
+
+exports.updateArticle = (articleId, newVotes)=>{
+    return db.query(`UPDATE articles 
+        SET votes = votes + $1
+        WHERE article_id = $2 
+        RETURNING *`, [newVotes, articleId])
+    .then(result=>{
+        return result.rows[0]
+    })
+}
