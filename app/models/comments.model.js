@@ -1,5 +1,16 @@
 const db = require("../../db/connection")
 
+exports.deleteFromCommentsById = (commentId)=>{
+    return db.query(`DELETE FROM comments
+        WHERE comment_id = $1 RETURNING *`, [commentId])
+    .then(result=>{
+        if (result.rows.length){
+            return result.rows
+        }
+        return Promise.reject({status:404,msg:"Id Not Found"})
+    })
+}
+
 exports.selectCommentsByArticleId = (articleId)=>{
     return db.query(`SELECT * FROM comments 
         WHERE article_id = $1

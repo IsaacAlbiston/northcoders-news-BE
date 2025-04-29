@@ -86,5 +86,9 @@
     "exampleBody": {
       "votes": 10
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes the comment with the specified id",
+    "exampleResponse": {}
   }
 }
