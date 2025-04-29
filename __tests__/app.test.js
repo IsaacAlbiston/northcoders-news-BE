@@ -88,7 +88,7 @@ describe("GET /api/articles/:article_id", ()=>{
 })
 
 describe("GET /api/articles/:article_id/comments", ()=>{
-  test("200: Responds with an array of all comments for an article with the specified article_id", ()=>{
+  test("200: Responds with an array of all comments in descending order of date for an article with the specified article_id", ()=>{
     return request(app)
     .get("/api/articles/5/comments")
     .expect(200)
@@ -154,6 +154,70 @@ describe("GET /api/articles", ()=>{
           comment_count: expect.any(Number)
         })
       })
+    })
+  })
+})
+
+describe("POST /api/articles/:article_id/comments", ()=>{
+  test("200: Responds with posted comment", ()=>{
+    return request(app)
+    .post("/api/articles/2/comments")
+    .send({username:"butter_bridge",body:"Some comment"})
+    .expect(200)
+    .then(({body:{comment}})=>{
+      expect(comment).toMatchObject({
+        author:"butter_bridge",
+        body:"Some comment",
+        comment_id: expect.any(Number),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        article_id: expect.any(Number)
+      })
+    })
+  })
+  test("404: Responds with Foreign Key Not Found when given article_id is out of range", ()=>{
+    return request(app)
+    .post("/api/articles/10000/comments")
+    .send({username:"butter_bridge",body:"Some comment"})
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Foreign Key Not Found")
+    })
+  })
+  test("400: Responds with Bad Request when given article_id is not a number", ()=>{
+    return request(app)
+    .post("/api/articles/notNumber/comments")
+    .send({username:"butter_bridge",body:"Some comment"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that is missing required properties", ()=>{
+    return request(app)
+    .post("/api/articles/2/comments")
+    .send({})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send({username:"butter_bridge",body:"Some comment",invalidKey:"error"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("404: Responds with Foreign Key Not Found when passed an object that has a username that is not in the users table", ()=>{
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send({username:"not_a_user",body:"Some comment"})
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Foreign Key Not Found")
     })
   })
 })

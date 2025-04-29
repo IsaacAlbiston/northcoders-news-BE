@@ -3,9 +3,11 @@ const endpointsJson = require("./endpoints.json");
 const { handleInternalServerErr, handleCustomErr, handleSQLErr } = require("./app/controllers/error.controller"); 
 const { getTopics } = require("./app/controllers/topics.controller");
 const { getArticleById, getArticles } = require("./app/controllers/articles.controller");
-const { getCommentsByArticleId } = require("./app/controllers/comments.controller");
+const { getCommentsByArticleId, postCommentToArticleId } = require("./app/controllers/comments.controller");
 
 const app = express()
+
+app.use(express.json())
 
 app.get("/api", (req,res)=>{
     res.status(200).send({endpoints:endpointsJson})
@@ -18,6 +20,8 @@ app.get("/api/articles", getArticles)
 app.get("/api/articles/:article_id", getArticleById)
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
+
+app.post("/api/articles/:article_id/comments", postCommentToArticleId)
 
 app.all('/*splat', (req,res)=>{
     res.status(404).send({msg:"Endpoint Not Found"})
