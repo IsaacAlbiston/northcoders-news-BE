@@ -133,7 +133,7 @@ describe("GET /api/articles/:article_id/comments", ()=>{
   })
 })
 
-describe.only("GET /api/articles", ()=>{
+describe("GET /api/articles", ()=>{
   test("200: Responds with an array of all articles in descending order of date with no body and a comment_count", ()=>{
     return request(app)
     .get("/api/articles")
