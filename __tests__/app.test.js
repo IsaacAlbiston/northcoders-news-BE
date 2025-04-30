@@ -563,7 +563,7 @@ describe("GET /api/users", ()=>{
   })
 })
 
-describe.only("GET /api/users/:username", ()=>{
+describe("GET /api/users/:username", ()=>{
   test("200: Responds with a user object with the specified username", ()=>{
     return request(app)
     .get("/api/users/rogersop")
