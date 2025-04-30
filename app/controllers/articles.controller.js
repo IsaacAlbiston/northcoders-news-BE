@@ -1,4 +1,4 @@
-const { selectArticleById, selectArticles, updateArticle } = require("../models/articles.model")
+const { selectArticleById, selectArticles, updateArticleById } = require("../models/articles.model")
 const { selectTopics } = require("../models/topics.model")
 
 exports.getArticleById = (req,res,next)=>{
@@ -36,13 +36,13 @@ exports.getArticles = (req,res,next)=>{
     .catch(next)
 }
 
-exports.patchArticle = (req,res,next)=>{
+exports.patchArticleById = (req,res,next)=>{
     if (Object.keys(req.body).length>1||!req.body.votes){
         return Promise.reject({status:400,msg:"Bad Request"})
     }
     const {article_id} = req.params
     const {votes} = req.body
-    const updateCurrentArticle = updateArticle(article_id, votes)
+    const updateCurrentArticle = updateArticleById(article_id, votes)
     const checkIfArticleExists = selectArticleById(article_id)
     Promise.all([updateCurrentArticle, checkIfArticleExists])
     .then(([article])=>{
