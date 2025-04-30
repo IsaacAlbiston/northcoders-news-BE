@@ -4,9 +4,7 @@ exports.deleteFromCommentsById = (commentId)=>{
     return db.query(`DELETE FROM comments
         WHERE comment_id = $1 RETURNING *`, [commentId])
     .then(result=>{
-        if (result.rows.length){
-            return result.rows
-        }
+        if (result.rows.length) return result.rows
         return Promise.reject({status:404,msg:"Id Not Found"})
     })
 }
@@ -29,5 +27,16 @@ exports.insertCommentToArticleId = (articleId, comment)=>{
         RETURNING *`, [articleId,comment.body,comment.username])
     .then(result=>{
         return result.rows[0]
+    })
+}
+
+exports.updateCommentById = (commentId, newVotes)=>{
+    return db.query(`UPDATE comments
+        SET votes = votes + $1
+        WHERE comment_id = $2
+        RETURNING *`, [newVotes,commentId])
+    .then(result=>{
+        if (result.rows.length) return result.rows[0]
+        return Promise.reject({status:404,msg:"Id Not Found"})
     })
 }
