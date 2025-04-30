@@ -1,4 +1,5 @@
 const { selectArticleById, selectArticles, updateArticle } = require("../models/articles.model")
+const { selectTopics } = require("../models/topics.model")
 
 exports.getArticleById = (req,res,next)=>{
     const {article_id} = req.params
@@ -10,10 +11,27 @@ exports.getArticleById = (req,res,next)=>{
 }
 
 exports.getArticles = (req,res,next)=>{
-    const {sort_by,order} = req.query
-    selectArticles({sort_by,order})
-    .then(articles=>{
-        res.status(200).send({articles})
+    const promiseArr = []
+    const {sort_by,order,topic} = req.query
+    promiseArr.push(selectArticles({sort_by,order,topic}))
+    //console.log(req.query)
+    if (topic){
+        promiseArr.push(selectTopics())
+    }
+    Promise.all(promiseArr)
+    .then((results)=>{
+        if (topic){
+            let rejectFlag = true
+            results[1].forEach(topicObj=>{
+                if (topicObj.slug===topic){
+                    rejectFlag = false
+                }
+            })
+            if (rejectFlag){
+                return Promise.reject({status:400,msg:"Bad Request"})
+            }
+        }
+        res.status(200).send({articles:results[0]})
     })
     .catch(next)
 }
