@@ -85,7 +85,7 @@
       }
     },
     "exampleBody": {
-      "votes": 10
+      "inc_votes": 10
     }
   },
   "DELETE /api/comments/:comment_id": {
@@ -110,6 +110,23 @@
         "name": "jonny",
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
       }
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates the votes on a comment with the specified id",
+    "exampleResponse": {
+      "comment":
+      {
+        "comment_id": 14,
+        "article_id": 2,
+        "author": "weegembump",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 10,
+        "body": "This is a comment"
+      }
+    },
+    "exampleBody": {
+      "inc_votes": 10
     }
   }
 }

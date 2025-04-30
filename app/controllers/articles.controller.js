@@ -37,12 +37,12 @@ exports.getArticles = (req,res,next)=>{
 }
 
 exports.patchArticleById = (req,res,next)=>{
-    if (Object.keys(req.body).length>1||!req.body.votes){
+    if (Object.keys(req.body).length>1||!req.body.inc_votes){
         return Promise.reject({status:400,msg:"Bad Request"})
     }
     const {article_id} = req.params
-    const {votes} = req.body
-    const updateCurrentArticle = updateArticleById(article_id, votes)
+    const {inc_votes} = req.body
+    const updateCurrentArticle = updateArticleById(article_id, inc_votes)
     const checkIfArticleExists = selectArticleById(article_id)
     Promise.all([updateCurrentArticle, checkIfArticleExists])
     .then(([article])=>{

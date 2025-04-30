@@ -430,7 +430,7 @@ describe("PATCH /api/articles/:article_id", ()=>{
   test("200: Responds with the updated article for the specified article_id", ()=>{
     return request(app)
     .patch("/api/articles/1")
-    .send({votes:50})
+    .send({inc_votes:50})
     .expect(200)
     .then(({body:{article}})=>{
       expect(article).toMatchObject({
@@ -446,10 +446,10 @@ describe("PATCH /api/articles/:article_id", ()=>{
       })
     })
   })
-  test("200: Responds with the updated article for the specified article_id when given a negative value of votes", ()=>{
+  test("200: Responds with the updated article for the specified article_id when given a negative value of inc_votes", ()=>{
     return request(app)
     .patch("/api/articles/1")
-    .send({votes:-10})
+    .send({inc_votes:-10})
     .expect(200)
     .then(({body:{article}})=>{
       expect(article).toMatchObject({
@@ -465,10 +465,10 @@ describe("PATCH /api/articles/:article_id", ()=>{
       })
     })
   })
-  test("400: Responds with Bad Request when passed an object with a votes property that is not a number", ()=>{
+  test("400: Responds with Bad Request when passed an object with a inc_votes property that is not a number", ()=>{
     return request(app)
     .patch("/api/articles/2")
-    .send({votes:"Not a number"})
+    .send({inc_votes:"Not a number"})
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
@@ -486,7 +486,7 @@ describe("PATCH /api/articles/:article_id", ()=>{
   test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
     return request(app)
     .patch("/api/articles/1")
-    .send({votes:10,invalidKey:"error"})
+    .send({inc_votes:10,invalidKey:"error"})
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
@@ -495,7 +495,7 @@ describe("PATCH /api/articles/:article_id", ()=>{
   test("404: Responds with Id Not Found when given article_id is out of range", ()=>{
     return request(app)
     .patch("/api/articles/10000")
-    .send({votes:10})
+    .send({inc_votes:10})
     .expect(404)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Id Not Found")
@@ -504,7 +504,7 @@ describe("PATCH /api/articles/:article_id", ()=>{
   test("400: Responds with Bad Request when given article_id is not a number", ()=>{
     return request(app)
     .patch("/api/articles/notValidId")
-    .send({votes:10})
+    .send({inc_votes:10})
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
@@ -538,6 +538,86 @@ describe("DELETE /api/comments/:comment_id", ()=>{
   test("400: Responds with Bad Request when comment_id is not a number", ()=>{
     return request(app)
     .delete("/api/comments/NotNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+})
+
+describe("PATCH /api/comments/:comment_id", ()=>{
+  test("Responds with the updated comment for the specified comment_id", ()=>{
+    return request(app)
+    .patch("/api/comments/1")
+    .send({inc_votes:10})
+    .expect(200)
+    .then(({body:{comment}})=>{
+      expect(comment).toMatchObject({
+        comment_id: 1,
+        article_id: 9,
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 26,
+        author: "butter_bridge",
+        created_at: "2020-04-06T12:17:00.000Z",
+      })
+    })
+  })
+  test("200: Responds with the updated comment for the specified comment_id when given a negative value of inc_votes", ()=>{
+    return request(app)
+    .patch("/api/comments/1")
+    .send({inc_votes:-10})
+    .expect(200)
+    .then(({body:{comment}})=>{
+      expect(comment).toMatchObject({
+        comment_id: 1,
+        article_id: 9,
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 6,
+        author: "butter_bridge",
+        created_at: "2020-04-06T12:17:00.000Z",
+      })
+    })
+  })
+  test("400: Responds with Bad Request when passed an object with a inc_votes property that is not a number", ()=>{
+    return request(app)
+    .patch("/api/comments/1")
+    .send({inc_votes:"Not a number"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that is missing required properties", ()=>{
+    return request(app)
+    .patch("/api/comments/1")
+    .send({})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
+    return request(app)
+    .patch("/api/comments/1")
+    .send({inc_votes:10,tooMany:"I shouldn't be here"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("404: Responds with Id Not Found when given comment_id is out of range ", ()=>{
+    return request(app)
+    .patch("/api/comments/10000")
+    .send({inc_votes:10})
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Id Not Found")
+    })
+  })
+  test("400: Responds with Bad Request when given comment_id is not a number", ()=>{
+    return request(app)
+    .patch("/api/comments/notANumber")
+    .send({inc_votes:10})
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
