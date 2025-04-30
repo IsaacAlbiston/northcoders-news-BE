@@ -51,7 +51,7 @@ describe("GET /api/topics", ()=>{
   })
 })
 
-describe("GET /api/articles/:article_id", ()=>{
+describe.only("GET /api/articles/:article_id", ()=>{
   test("200: Responds with an article object with the specified article_id", ()=>{
     return request(app)
     .get("/api/articles/3")
@@ -66,6 +66,24 @@ describe("GET /api/articles/:article_id", ()=>{
         created_at: "2020-11-03T09:12:00.000Z",
         votes: 0,
         article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      })
+    })
+  })
+  test("200: Responds Responds with an article object with the specified article_id including comment_count", ()=>{
+    return request(app)
+    .get("/api/articles/9")
+    .expect(200)
+    .then(({body:{article}})=>{
+      expect(article).toMatchObject({
+        article_id: 9,
+        title: "They're not exactly dogs, are they?",
+        topic: 'mitch',
+        author: "butter_bridge",
+        body: "Well? Think about it.",
+        created_at: "2020-06-06T09:10:00.000Z",
+        votes: 0,
+        article_img_url:  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: 2
       })
     })
   })
