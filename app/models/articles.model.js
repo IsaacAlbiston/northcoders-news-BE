@@ -56,7 +56,7 @@ exports.selectArticles = (query)=>{
     })
 }
 
-exports.updateArticle = (articleId, newVotes)=>{
+exports.updateArticleById = (articleId, newVotes)=>{
     return db.query(`UPDATE articles 
         SET votes = votes + $1
         WHERE article_id = $2 
