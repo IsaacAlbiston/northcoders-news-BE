@@ -41,7 +41,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         body TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         votes INT DEFAULT 0,
-        article_img_url VARCHAR(1000)
+        article_img_url VARCHAR(1000) DEFAULT 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
       );`
     )
   })
