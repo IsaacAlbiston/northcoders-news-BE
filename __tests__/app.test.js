@@ -108,10 +108,10 @@ describe("GET /api/articles/:article_id", ()=>{
 describe("GET /api/articles/:article_id/comments", ()=>{
   test("200: Responds with an array of all comments in descending order of date for an article with the specified article_id", ()=>{
     return request(app)
-    .get("/api/articles/5/comments")
+    .get("/api/articles/1/comments")
     .expect(200)
     .then(({body:{comments}})=>{
-      expect(comments).toHaveLength(2)
+      expect(comments.length).toBeGreaterThan(0)
       expect(comments).toBeSortedBy("created_at", { descending: true})
       comments.forEach(comment=>{
         expect(comment).toMatchObject({
@@ -120,7 +120,7 @@ describe("GET /api/articles/:article_id/comments", ()=>{
           comment_id: expect.any(Number),
           created_at: expect.any(String),
           votes: expect.any(Number),
-          article_id: expect.any(Number)
+          article_id: 1
         })
       })
     })
@@ -144,6 +144,102 @@ describe("GET /api/articles/:article_id/comments", ()=>{
   test("400: Responds with Bad Request when given article_id is not a number", ()=>{
     return request(app)
     .get("/api/articles/notValidId/comments")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("200: Responds with an array of the first 10 comments and a total_count when the limit query is not given", ()=>{
+    return request(app)
+    .get("/api/articles/1/comments")
+    .expect(200)
+    .then(({body:{comments,total_count}})=>{
+      expect(comments).toHaveLength(10)
+      expect(total_count).toBe(11)
+      expect(comments).toBeSortedBy("created_at", { descending: true})
+      comments.forEach(comment=>{
+        expect(comment.created_at>="2020-02-23T12:01:00.000Z").toBe(true)
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          body: expect.any(String),
+          comment_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_id: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an array of the first 5 comments and a total_count when the limit query is 5", ()=>{
+    return request(app)
+    .get("/api/articles/1/comments?limit=5")
+    .expect(200)
+    .then(({body:{comments,total_count}})=>{
+      expect(comments).toHaveLength(5)
+      expect(total_count).toBe(11)
+      expect(comments).toBeSortedBy("created_at", { descending: true})
+      comments.forEach(comment=>{
+        expect(comment.created_at>="2020-05-15T20:19:00.000Z").toBe(true)
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          body: expect.any(String),
+          comment_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_id: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an array of comments 6-10 when the limit query is 5 and the p query is 2", ()=>{
+    return request(app)
+    .get("/api/articles/1/comments?limit=5&p=2&sort_by=article_id&order=asc")
+    .expect(200)
+    .then(({body:{comments,total_count}})=>{
+      expect(comments).toHaveLength(5)
+      expect(total_count).toBe(11)
+      expect(comments).toBeSortedBy("created_at", { descending: true})
+      comments.forEach(comment=>{
+        expect(comment.created_at<"2020-05-15T20:19:00.000Z").toBe(true)
+        expect(comment.created_at>="2020-02-23T12:01:00.000Z").toBe(true)
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          body: expect.any(String),
+          comment_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_id: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("400: Responds with Bad Request when the limit query is not a number", ()=>{
+    return request(app)
+    .get("/api/articles/3/comments?limit=notNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the limit query is less than or equal to 0", ()=>{
+    return request(app)
+    .get("/api/articles/3/comments?limit=-10")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the p query is not a number", ()=>{
+    return request(app)
+    .get("/api/articles/3/comments?p=notNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the p query is less than or equal to 0", ()=>{
+    return request(app)
+    .get("/api/articles/3/comments?p=-10")
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
