@@ -9,12 +9,23 @@ exports.deleteFromCommentsById = (commentId)=>{
     })
 }
 
-exports.selectCommentsByArticleId = (articleId)=>{
-    return db.query(`SELECT * FROM comments 
+exports.selectCommentsByArticleId = (articleId,limit,p)=>{
+    const promiseArr = []
+    const offset = (p-1)*limit
+    promiseArr.push(db.query(`SELECT * FROM comments 
         WHERE article_id = $1
-        ORDER BY created_at DESC`, [articleId])
+        ORDER BY created_at DESC
+        LIMIT $2
+        OFFSET $3`, [articleId,limit,offset]))
+    promiseArr.push(db.query(`SELECT CAST(COUNT(comment_id) AS int) AS total_count 
+        FROM comments WHERE article_id = $1`, [articleId]))
+
+    return Promise.all(promiseArr)
     .then(result=>{
-        return result.rows
+        return {
+            comments: result[0].rows,
+            total_count: result[1].rows[0].total_count
+        }
     })
 }
 

@@ -12,11 +12,15 @@ exports.deleteCommentById = (req,res,next)=>{
 
 exports.getCommentsByArticleId = (req,res,next)=>{
     const {article_id} = req.params
-    const selectComments = selectCommentsByArticleId(article_id)
+    let {limit, p} = req.query
+    if (!limit) limit = 10
+    if (!p) p = 1
+    if (limit<=0||p<=0) return Promise.reject({status:400,msg:"Bad Request"})
+    const selectComments = selectCommentsByArticleId(article_id,limit, p)
     const checkIfArticleExists = selectArticleById(article_id)
     Promise.all([selectComments, checkIfArticleExists])
-    .then(([comments])=>{
-        res.status(200).send({comments})
+    .then(([commentsResultObj])=>{
+        res.status(200).send(commentsResultObj)
     })
     .catch(next)
 }

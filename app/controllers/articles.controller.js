@@ -14,11 +14,10 @@ exports.getArticles = (req,res,next)=>{
     const {sort_by,order,topic} = req.query
     let {limit,p} = req.query
     if(!limit) limit = 10
-    if(isNaN(limit)||limit<=0) return Promise.reject({status:400,msg:"Bad Request"}) 
     if(!p) p = 1
-    if(isNaN(p)||p<=0) return Promise.reject({status:400,msg:"Bad Request"})
+    if(limit<=0||p<=0) return Promise.reject({status:400,msg:"Bad Request"}) 
     const promiseArr = []
-    promiseArr.push(selectArticles({sort_by,order,topic}))
+    promiseArr.push(selectArticles({sort_by,order,topic,limit,p}))
     if (topic){
         promiseArr.push(selectTopics())
     }
@@ -35,10 +34,7 @@ exports.getArticles = (req,res,next)=>{
                 return Promise.reject({status:400,msg:"Bad Request"})
             }
         }
-        res.status(200).send({
-            articles:results[0].slice((p-1)*limit,p*limit),
-            total_count: results[0].length
-        })
+        res.status(200).send(results[0])
     })
     .catch(next)
 }
