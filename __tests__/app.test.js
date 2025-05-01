@@ -157,7 +157,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("created_at", { descending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -179,7 +179,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?sort_by=votes")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("votes", { descending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -201,7 +201,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?sort_by=title")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("title", { descending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -231,7 +231,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?order=asc")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("created_at", { ascending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -253,7 +253,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?order=desc")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("created_at", { descending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -275,7 +275,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?sort_by=votes&order=asc")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(13)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("votes", { ascending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -305,7 +305,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?topic=mitch")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(12)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("created_at", { descending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -313,7 +313,7 @@ describe("GET /api/articles", ()=>{
           author: expect.any(String),
           title: expect.any(String),
           article_id: expect.any(Number),
-          topic: expect.any(String),
+          topic: "mitch",
           created_at: expect.any(String),
           votes: expect.any(Number),
           article_img_url: expect.any(String),
@@ -327,7 +327,7 @@ describe("GET /api/articles", ()=>{
     .get("/api/articles?topic=mitch&order=asc&sort_by=votes")
     .expect(200)
     .then(({body:{articles}})=>{
-      expect(articles).toHaveLength(12)
+      expect(articles.length).toBeGreaterThan(0)
       expect(articles).toBeSortedBy("votes", { ascending: true})
       articles.forEach(article=>{
         expect(article).not.toHaveProperty("body")
@@ -335,7 +335,7 @@ describe("GET /api/articles", ()=>{
           author: expect.any(String),
           title: expect.any(String),
           article_id: expect.any(Number),
-          topic: expect.any(String),
+          topic: "mitch",
           created_at: expect.any(String),
           votes: expect.any(Number),
           article_img_url: expect.any(String),
@@ -355,6 +355,107 @@ describe("GET /api/articles", ()=>{
   test("400: Responds with Bad Request when the topic query is invalid", ()=>{
     return request(app)
     .get("/api/articles?topic=invalid_query")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("200: Responds with an array of the first 10 articles and a total_count when the limit query is not given", ()=>{
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body:{articles,total_count}})=>{
+      expect(articles).toHaveLength(10)
+      expect(total_count).toBe(13)
+      expect(articles).toBeSortedBy("created_at", { descending: true})
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an array of the first 5 articles and a total_count when the limit query is 5", ()=>{
+    return request(app)
+    .get("/api/articles?limit=5")
+    .expect(200)
+    .then(({body:{articles,total_count}})=>{
+      expect(articles).toHaveLength(5)
+      expect(total_count).toBe(13)
+      expect(articles).toBeSortedBy("created_at", { descending: true})
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("200: Responds with an array of articles 6-10 when the limit query is 5 and the p query is 2", ()=>{
+    return request(app)
+    .get("/api/articles?limit=5&p=2&sort_by=article_id&order=asc")
+    .expect(200)
+    .then(({body:{articles,total_count}})=>{
+      expect(articles).toHaveLength(5)
+      expect(total_count).toBe(13)
+      let id_count = 6
+      articles.forEach(article=>{
+        expect(article).not.toHaveProperty("body")
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: id_count++,
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+  test("400: Responds with Bad Request when the limit query is not a number", ()=>{
+    return request(app)
+    .get("/api/articles?limit=notNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the limit query is less than or equal to 0", ()=>{
+    return request(app)
+    .get("/api/articles?limit=-10")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the p query is not a number", ()=>{
+    return request(app)
+    .get("/api/articles?p=notNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when the p query is less than or equal to 0", ()=>{
+    return request(app)
+    .get("/api/articles?p=-10")
     .expect(400)
     .then(({body:{msg}})=>{
       expect(msg).toBe("Bad Request")
