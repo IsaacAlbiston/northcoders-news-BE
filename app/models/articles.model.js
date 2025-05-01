@@ -65,3 +65,22 @@ exports.updateArticleById = (articleId, newVotes)=>{
         return result.rows[0]
     })
 }
+
+exports.insertArticle = (newArticle)=>{
+    if (newArticle.article_img_url){
+        return db.query(`INSERT INTO articles 
+            (author, title, body, topic, article_img_url)
+            VALUES ($1,$2,$3,$4,$5)
+            RETURNING *`,[newArticle.author, newArticle.title, newArticle.body, newArticle.topic, newArticle.article_img_url])
+        .then(result=>{
+            return result.rows[0]
+        })
+    }
+    return db.query(`INSERT INTO articles 
+        (author, title, body, topic)
+        VALUES ($1,$2,$3,$4)
+        RETURNING *`,[newArticle.author, newArticle.title, newArticle.body, newArticle.topic])
+    .then(result=>{
+        return result.rows[0]
+    })
+}

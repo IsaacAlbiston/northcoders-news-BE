@@ -1,4 +1,4 @@
-const { selectArticleById, selectArticles, updateArticleById } = require("../models/articles.model")
+const { selectArticleById, selectArticles, updateArticleById, insertArticle } = require("../models/articles.model")
 const { selectTopics } = require("../models/topics.model")
 
 exports.getArticleById = (req,res,next)=>{
@@ -47,6 +47,26 @@ exports.patchArticleById = (req,res,next)=>{
     Promise.all([updateCurrentArticle, checkIfArticleExists])
     .then(([article])=>{
         res.status(200).send({article})
+    })
+    .catch(next)
+}
+
+exports.postArticle = (req,res,next)=>{
+    const validInputArr = ["author","title","body","topic","article_img_url"]
+    let invalidInputFlag = false
+    Object.keys(req.body).forEach((key)=>{
+        if (!validInputArr.includes(key)){
+            invalidInputFlag = true
+        }
+    })
+    if (invalidInputFlag) return Promise.reject({status:400,msg:"Bad Request"})
+    const newArticle = req.body
+    insertArticle(newArticle)
+    .then(article=>{
+        selectArticleById(article.article_id)
+        .then(article=>{
+            res.status(200).send({article})
+        })
     })
     .catch(next)
 }

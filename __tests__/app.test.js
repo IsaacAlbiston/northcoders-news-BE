@@ -362,6 +362,113 @@ describe("GET /api/articles", ()=>{
   })
 })
 
+describe("POST /api/articles", ()=>{
+  test("200: Responds with the new article with a comment count and adds the article to the articles table", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "rogersop",
+      title: "New article",
+      body: "This is a new article",
+      topic: "paper",
+      article_img_url: "some_img_url"
+    })
+    .expect(200)
+    .then(({body:{article}})=>{
+      expect(article).toMatchObject({
+        author: "rogersop",
+        title: "New article",
+        body: "This is a new article",
+        topic: "paper",
+        article_img_url: "some_img_url",
+        article_id: 14,
+        votes: 0,
+        created_at: expect.any(String),
+        comment_count: 0
+      })
+    })
+  })
+  test("200: Responds with the new article with default article_img_url and adds the article to the articles table when article_img_url is not given", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "rogersop",
+      title: "New article",
+      body: "This is a new article",
+      topic: "paper"
+    })
+    .expect(200)
+    .then(({body:{article}})=>{
+      expect(article).toMatchObject({
+        author: "rogersop",
+        title: "New article",
+        body: "This is a new article",
+        topic: "paper",
+        article_img_url: expect.any(String),
+        article_id: 14,
+        votes: 0,
+        created_at: expect.any(String),
+        comment_count: 0
+      })
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that is missing required properties", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "rogersop",
+      topic: "paper"
+    })
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "rogersop",
+      title: "New article",
+      body: "This is a new article",
+      topic: "paper",
+      unneeded: "This is not needed"
+    })
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("404: Responds with Foreign Key Not Found when passed an object that has an author that is not in the users table", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "not a username",
+      title: "New article",
+      body: "This is a new article",
+      topic: "paper"
+    })
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Foreign Key Not Found")
+    })
+  })
+  test("404: Responds with Foreign Key Not Found when passed an object that has a topic that is not in the topics table", ()=>{
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "rogersop",
+      title: "New article",
+      body: "This is a new article",
+      topic: "not a topic"
+    })
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Foreign Key Not Found")
+    })
+  })
+})
+
 describe("POST /api/articles/:article_id/comments", ()=>{
   test("200: Responds with posted comment", ()=>{
     return request(app)
