@@ -68,7 +68,7 @@ exports.postArticle = (req,res,next)=>{
     .then(article=>{
         selectArticleById(article.article_id)
         .then(article=>{
-            res.status(200).send({article})
+            res.status(201).send({article})
         })
     })
     .catch(next)

@@ -51,6 +51,76 @@ describe("GET /api/topics", ()=>{
   })
 })
 
+describe("POST /api/topics", ()=>{
+  test("201: Responds with the created topic when given an object with a slug, description and img_url", ()=>{
+    return request(app)
+    .post("/api/topics")
+    .send({
+      "slug": "New topic name",
+      "description": "New topic description",
+      "img_url": "some/new/img/url"
+    })
+    .expect(201)
+    .then(({body:{topic}})=>{
+      expect(topic).toMatchObject({
+        "slug": "New topic name",
+        "description": "New topic description",
+        "img_url": "some/new/img/url"
+      })
+    })
+  })
+  test("201: Responds with the created topic with a default img_url when given an object with a slug and description", ()=>{
+    return request(app)
+    .post("/api/topics")
+    .send({
+      "slug": "New topic name",
+      "description": "New topic description"
+    })
+    .expect(201)
+    .then(({body:{topic}})=>{
+      expect(topic).toMatchObject({
+        "slug": "New topic name",
+        "description": "New topic description",
+        "img_url": 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      })
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that is missing required properties", ()=>{
+    return request(app)
+    .post("/api/topics")
+    .send({"slug": "New topic name"})
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed an object that has more properties than required", ()=>{
+    return request(app)
+    .post("/api/topics")
+    .send({
+      "slug": "New topic name",
+      "description": "New topic description",
+      "unneeded": "This is not needed"
+    })
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+  test("400: Responds with Bad Request when passed a topic slug that already exists", ()=>{
+    return request(app)
+    .post("/api/topics")
+    .send({
+      "slug": "cats",
+      "description": "New topic description"
+    })
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+})
+
 describe("GET /api/articles/:article_id", ()=>{
   test("200: Responds with an article object with the specified article_id", ()=>{
     return request(app)
@@ -560,7 +630,7 @@ describe("GET /api/articles", ()=>{
 })
 
 describe("POST /api/articles", ()=>{
-  test("200: Responds with the new article with a comment count and adds the article to the articles table", ()=>{
+  test("201: Responds with the new article with a comment count and adds the article to the articles table", ()=>{
     return request(app)
     .post("/api/articles")
     .send({
@@ -570,7 +640,7 @@ describe("POST /api/articles", ()=>{
       topic: "paper",
       article_img_url: "some_img_url"
     })
-    .expect(200)
+    .expect(201)
     .then(({body:{article}})=>{
       expect(article).toMatchObject({
         author: "rogersop",
@@ -585,7 +655,7 @@ describe("POST /api/articles", ()=>{
       })
     })
   })
-  test("200: Responds with the new article with default article_img_url and adds the article to the articles table when article_img_url is not given", ()=>{
+  test("201: Responds with the new article with default article_img_url and adds the article to the articles table when article_img_url is not given", ()=>{
     return request(app)
     .post("/api/articles")
     .send({
@@ -594,7 +664,7 @@ describe("POST /api/articles", ()=>{
       body: "This is a new article",
       topic: "paper"
     })
-    .expect(200)
+    .expect(201)
     .then(({body:{article}})=>{
       expect(article).toMatchObject({
         author: "rogersop",
@@ -667,11 +737,11 @@ describe("POST /api/articles", ()=>{
 })
 
 describe("POST /api/articles/:article_id/comments", ()=>{
-  test("200: Responds with posted comment", ()=>{
+  test("201: Responds with posted comment", ()=>{
     return request(app)
     .post("/api/articles/2/comments")
     .send({username:"butter_bridge",body:"Some comment"})
-    .expect(200)
+    .expect(201)
     .then(({body:{comment}})=>{
       expect(comment).toMatchObject({
         author:"butter_bridge",
