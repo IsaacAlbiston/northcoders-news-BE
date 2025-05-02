@@ -1,5 +1,6 @@
 exports.handleSQLErr = (err,req,res,next)=>{
-    if (err.code === "22P02"|| err.code === "23502"){
+    const badRequestCodeArr = ["23505", "22P02", "23502"]
+    if (badRequestCodeArr.includes(err.code)){
         res.status(400).send({msg:"Bad Request"})
     }else if (err.code === "23503"){
         res.status(404).send({msg:"Foreign Key Not Found"})

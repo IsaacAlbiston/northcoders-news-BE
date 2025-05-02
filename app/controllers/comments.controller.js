@@ -30,7 +30,7 @@ exports.postCommentToArticleId = (req,res,next)=>{
     const {body} = req
     insertCommentToArticleId(article_id, body)
     .then(comment=>{
-        res.status(200).send({comment})
+        res.status(201).send({comment})
     })
     .catch(next)
 }

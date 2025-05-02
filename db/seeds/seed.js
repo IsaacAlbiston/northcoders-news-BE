@@ -17,8 +17,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     return db.query(
       `CREATE TABLE topics (
         slug VARCHAR(40) PRIMARY KEY, 
-        description VARCHAR(300), 
-        img_url VARCHAR(1000)
+        description VARCHAR(300) NOT NULL, 
+        img_url VARCHAR(1000) DEFAULT 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
       );`
     )
   })
