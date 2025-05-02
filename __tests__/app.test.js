@@ -800,6 +800,54 @@ describe("POST /api/articles/:article_id/comments", ()=>{
   })
 })
 
+describe("DELETE /api/articles/:article_id", ()=>{
+  test("204: Responds with no content and deletes the specified article", ()=>{
+    return request(app)
+    .delete("/api/articles/3")
+    .expect(204)
+    .then(({body})=>{
+      expect(body).toEqual({})
+      return request(app)
+      .get("/api/articles/3")
+      .expect(404)
+    })
+  })
+  test("204: Responds with no content and deletes all comments on the specified article", ()=>{
+    return request(app)
+    .delete("/api/articles/3")
+    .expect(204)
+    .then(({body})=>{
+      expect(body).toEqual({})
+      return request(app)
+      .patch("/api/comments/10")
+      .send({inc_votes:10})
+      .expect(404)
+      .then(()=>{
+        return request(app)
+        .patch("/api/comments/11")
+        .send({inc_votes:10})
+        .expect(404)
+      })
+    })
+  })
+  test("404: Responds with Id Not Found when article_id is out of range", ()=>{
+    return request(app)
+    .delete("/api/articles/10000")
+    .expect(404)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Id Not Found")
+    })
+  })
+  test("400: Responds with Bad Request when article_id is not a number", ()=>{
+    return request(app)
+    .delete("/api/articles/NotNumber")
+    .expect(400)
+    .then(({body:{msg}})=>{
+      expect(msg).toBe("Bad Request")
+    })
+  })
+})
+
 describe("PATCH /api/articles/:article_id", ()=>{
   test("200: Responds with the updated article for the specified article_id", ()=>{
     return request(app)

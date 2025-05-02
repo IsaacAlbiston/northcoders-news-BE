@@ -9,6 +9,21 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "posts a new topic then serves the created topic",
+    "exampleResponse": {
+      "topic":{
+        "slug": "New topic name",
+        "description": "New topic description",
+        "img_url": "some/new/img/url"
+      }
+    },
+    "exampleBody": {
+      "slug": "New topic name",
+      "description": "New topic description",
+      "img_url": "some/new/img/url"
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["sort_by","order","topic","limit","p"],
@@ -34,8 +49,13 @@
           "author": "weegembump",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 0,
-          "comment_count": 6
+          "comment_count": 0
         }
+    },
+    "exampleBody": {
+      "title": "Seafood substitutions are increasing",
+      "topic": "cooking",
+      "author": "weegembump"
     }
   },
   "GET /api/articles/:article_id": {
@@ -101,6 +121,10 @@
     "exampleBody": {
       "inc_votes": 10
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes the article with the specified id",
+    "exampleResponse": {}
   },
   "DELETE /api/comments/:comment_id": {
     "description": "Deletes the comment with the specified id",
