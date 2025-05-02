@@ -101,3 +101,13 @@ exports.insertArticle = (newArticle)=>{
         return result.rows[0]
     })
 }
+
+exports.deleteFromArticlesById = (articleId)=>{
+    return db.query(`DELETE FROM articles
+        WHERE article_id = $1
+        RETURNING *`,[articleId])
+    .then(result=>{
+        if (result.rows.length) return result.rows[0]
+        return Promise.reject({status:404,msg:"Id Not Found"})
+    })
+}
