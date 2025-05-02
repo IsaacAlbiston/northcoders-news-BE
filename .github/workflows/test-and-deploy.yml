@@ -1,6 +1,6 @@
 name: Test & Deploy
 on:
-    merge_group:
+    push:
         branches:
             - main
 jobs:
