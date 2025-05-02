@@ -12,9 +12,7 @@ exports.postTopic = (req,res,next)=>{
     const validInputArr = ["slug","description","img_url"]
     let invalidInputFlag = false
     Object.keys(req.body).forEach((key)=>{
-        if (!validInputArr.includes(key)){
-            invalidInputFlag = true
-        }
+        if (!validInputArr.includes(key)) invalidInputFlag = true
     })
     if (invalidInputFlag) return Promise.reject({status:400,msg:"Bad Request"})
     const {slug,description,img_url} = req.body
